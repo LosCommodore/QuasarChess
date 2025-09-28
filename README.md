@@ -2,42 +2,9 @@
 
 A Quasar Project
 
-## Install the dependencies
+## Images Attribution
 
-```bash
-yarn
-# or
-npm install
-```
+Chess piece set by Cburnett, licensed under CC BY-SA 3.0.
+Source: Wikimedia Commons
 
-### Start the app in development mode (hot-code reloading, error reporting, etc.)
-
-```bash
-quasar dev
-```
-
-### Lint the files
-
-```bash
-yarn lint
-# or
-npm run lint
-```
-
-### Format the files
-
-```bash
-yarn format
-# or
-npm run format
-```
-
-### Build the app for production
-
-```bash
-quasar build
-```
-
-### Customize the configuration
-
-See [Configuring quasar.config.js](https://v2.quasar.dev/quasar-cli-vite/quasar-config-js).
+By Cburnett - Own work, CC BY-SA 3.0, https://commons.wikimedia.org/wiki/Category:SVG_chess_pieces

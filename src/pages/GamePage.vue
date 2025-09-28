@@ -17,10 +17,9 @@
               }"
             ></div>
 
-            <q-img
+            <FigureComponent
+              figure="r"
               v-if="get_piece(y, x)"
-              src="/figures/king.svg"
-              style="width: 80px; height: 80px; z-index: 1"
               :style="{
                 'grid-row-start': y,
                 'grid-row-end': y + 1,
@@ -55,6 +54,7 @@ const get_piece = (row: number, col: number): number => {
   return value ?? 0;
 };
 
+import FigureComponent from 'src/components/FigureComponent.vue';
 import { ref } from 'vue';
 
 const b = Array.from({ length: 8 }, () => Array.from({ length: 8 }, () => 0));

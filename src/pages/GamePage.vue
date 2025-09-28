@@ -17,7 +17,7 @@
               }"
             ></div>
 
-            <FigureComponent
+            <ChessPiece
               figure="r"
               v-if="get_piece(y, x)"
               :style="{
@@ -35,6 +35,7 @@
 </template>
 
 <script setup lang="ts">
+import ChessPiece from 'components/ChessPiece.vue';
 const get_color = (row: number, col: number): boolean => {
   const uneven_row = row % 2;
   const is_black = Boolean((col + uneven_row) % 2);
@@ -54,9 +55,7 @@ const get_piece = (row: number, col: number): number => {
   return value ?? 0;
 };
 
-import FigureComponent from 'src/components/FigureComponent.vue';
 import { ref } from 'vue';
-
 const b = Array.from({ length: 8 }, () => Array.from({ length: 8 }, () => 0));
 const board = ref<number[][]>(b);
 

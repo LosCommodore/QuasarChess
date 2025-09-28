@@ -2,16 +2,31 @@
   <q-page padding>
     <div class="row">
       <div class="my-grid">
-        <div v-for="n in 64" :key="n" :class="{ 'bg-black': get_color(n - 1) }"></div>
+        <template v-for="y in 8">
+          <div
+            v-for="x in 8"
+            :key="'cell' + x + y"
+            :class="get_color(x, y) ? 'bg-blue' : 'bg-brown'"
+            :style="{
+              'grid-row-start': y,
+              'grid-row-end': y + 1,
+              'grid-column-start': x,
+              'grid-column-end': x + 1,
+            }"
+          ></div>
+        </template>
+
+        <q-img
+          src="/figures/king.svg"
+          style="width: 80px; height: 80px; grid-area: 4/4/5/5; z-index: 1"
+        />
       </div>
     </div>
   </q-page>
 </template>
 
 <script setup lang="ts">
-const get_color = (cell: number): boolean => {
-  const col = cell % 8;
-  const row = Math.floor(cell / 8);
+const get_color = (row: number, col: number): boolean => {
   const uneven_row = row % 2;
   const is_black = Boolean((col + uneven_row) % 2);
   return is_black;

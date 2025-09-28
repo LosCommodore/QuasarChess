@@ -3,9 +3,11 @@
 </template>
 
 <script setup lang="ts">
-const props = defineProps({
-  figure: { type: String, required: true },
-});
+import type { Piece } from 'src/logic/chess/chess';
+
+const props = defineProps<{
+  figure: Piece;
+}>();
 
 const figure_mapping: Record<string, string> = {
   k: '/figures/king.svg',

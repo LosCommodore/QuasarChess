@@ -32,6 +32,7 @@
 
 <script setup lang="ts">
 import ChessPiece from 'components/ChessPiece.vue';
+import type { Piece } from 'src/logic/chess/chess';
 const get_color = (row: number, col: number): boolean => {
   const uneven_row = row % 2;
   const is_black = Boolean((col + uneven_row) % 2);
@@ -43,17 +44,17 @@ const click_me = () => {
   if (!row) {
     return;
   }
-  row[5] = 42;
+  row[5] = 'r';
 };
 
-const get_piece = (row: number, col: number): number => {
+const get_piece = (row: number, col: number): Piece => {
   const value = board.value[row]?.[col];
-  return value ?? 0;
+  return value ?? '';
 };
 
 import { ref } from 'vue';
-const b = Array.from({ length: 8 }, () => Array.from({ length: 8 }, () => 0));
-const board = ref<number[][]>(b);
+const b: Piece[][] = Array.from({ length: 8 }, () => Array.from({ length: 8 }, () => ''));
+const board = ref<Piece[][]>(b);
 
 //
 </script>

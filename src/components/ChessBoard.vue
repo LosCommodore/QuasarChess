@@ -40,7 +40,7 @@ const get_color = (row: number, col: number): boolean => {
 };
 
 const click_me = () => {
-  const row = board.value[5];
+  const row = board.value.board[5];
   if (!row) {
     return;
   }
@@ -48,13 +48,14 @@ const click_me = () => {
 };
 
 const get_piece = (row: number, col: number): Piece => {
-  const value = board.value[row]?.[col];
+  const value = board.value?.board[row]?.[col];
   return value ?? '';
 };
 
 import { ref } from 'vue';
-const b: Piece[][] = Array.from({ length: 8 }, () => Array.from({ length: 8 }, () => ''));
-const board = ref<Piece[][]>(b);
+import { Board } from 'src/logic/chess/chess';
+
+const board = ref<Board>(new Board());
 
 //
 </script>

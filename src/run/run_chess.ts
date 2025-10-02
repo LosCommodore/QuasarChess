@@ -1,5 +1,4 @@
 import { Board } from 'src/logic/chess/chess';
 
 const board = new Board();
-board.board[2]![3] = 'r';
-console.log(board.toString());
+board.set_piece(2, 3, { type: 'b', color: 'b' });

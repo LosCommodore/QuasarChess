@@ -1,12 +1,16 @@
 <template>
-  <q-img :src="figure_mapping[props.figure]" style="width: 80px; height: 80px; z-index: 1" />
+  <q-img
+    :src="figure_mapping[props.piece.type]"
+    style="width: 80px; height: 80px; z-index: 1"
+    draggable
+  />
 </template>
 
 <script setup lang="ts">
 import type { Piece } from 'src/logic/chess/chess';
 
 const props = defineProps<{
-  figure: Piece;
+  piece: Piece;
 }>();
 
 const figure_mapping: Record<string, string> = {

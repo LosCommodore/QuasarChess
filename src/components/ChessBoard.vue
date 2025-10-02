@@ -29,6 +29,7 @@
         'grid-column-start': x,
         'grid-column-end': x + 1,
       }"
+      @dragstart="onDragStart"
     />
   </div>
 </template>
@@ -48,6 +49,14 @@ const get_color = (row: number, col: number): boolean => {
 
 const click_me = () => {
   board.value.set_piece(4, 3, { type: 'k', color: 'b' });
+};
+
+const onDragStart = (event: DragEvent) => {
+  console.log(event);
+  const target = event.target as HTMLElement;
+  const draggedId = target.id;
+
+  console.log('Dragged element ID:', draggedId);
 };
 
 const handle_drop = (event: DragEvent) => {

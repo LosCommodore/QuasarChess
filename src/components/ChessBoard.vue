@@ -1,6 +1,7 @@
 <template>
   <div class="row">
     <q-btn label="click me" @click="click_me"></q-btn>
+    <q-btn label="move" @click="move"></q-btn>
   </div>
   <div class="my-grid">
     <template v-for="y in 8">
@@ -20,15 +21,16 @@
     </template>
 
     <ChessPiece
-      v-for="[[y, x], piece] in board.get_pieces_list()"
-      :key="x + y"
+      v-for="[pos, piece] in board"
+      :key="pos[0] + pos[1]"
       :piece="piece"
       :style="{
-        'grid-row-start': y,
-        'grid-row-end': y + 1,
-        'grid-column-start': x,
-        'grid-column-end': x + 1,
+        'grid-row-start': pos[0],
+        'grid-row-end': pos[0] + 1,
+        'grid-column-start': pos[1],
+        'grid-column-end': pos[1] + 1,
       }"
+      :board_pos="pos"
       @dragstart="onDragStart"
     />
   </div>
@@ -37,9 +39,10 @@
 <script setup lang="ts">
 import ChessPiece from 'components/ChessPiece.vue';
 import { ref } from 'vue';
-import { Board } from 'src/logic/chess/chess';
+import type { Position } from 'src/logic/chess/chess';
+import type { Piece } from 'src/logic/chess/chess';
 
-const board = ref<Board>(new Board());
+const board = ref<[Position, Piece][]>([]);
 
 const get_color = (row: number, col: number): boolean => {
   const uneven_row = row % 2;
@@ -48,20 +51,36 @@ const get_color = (row: number, col: number): boolean => {
 };
 
 const click_me = () => {
-  board.value.set_piece(4, 3, { type: 'k', color: 'b' });
+  const new_piece: Piece = { type: 'k', color: 'b' };
+  board.value.push([[4, 3], new_piece]);
+};
+
+const move = () => {
+  const pos = board.value[0];
+  console.log(pos);
+  if (!pos) return;
+
+  pos[0] = [2, 2];
 };
 
 const onDragStart = (event: DragEvent) => {
   console.log(event);
-  const target = event.target as HTMLElement;
+  const target = event.currentTarget as HTMLElement;
   const draggedId = target.id;
+  const boardPos = target.getAttribute('board_pos') ?? '';
 
+  event.dataTransfer?.setData('text/plain', boardPos);
   console.log('Dragged element ID:', draggedId);
 };
 
 const handle_drop = (event: DragEvent) => {
   console.log('enter handle drop');
   console.log(event);
+
+  const value = event.dataTransfer?.getData('text/plain');
+  if (value) {
+    console.log('droppedvalue', value);
+  }
 };
 </script>
 

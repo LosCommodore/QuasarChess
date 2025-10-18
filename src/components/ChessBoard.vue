@@ -78,9 +78,29 @@ const handle_drop = (event: DragEvent) => {
   console.log(event);
 
   const value = event.dataTransfer?.getData('text/plain');
+  if (!value) return;
+
+  const source_pos = eval('[' + value + ']');
   if (value) {
-    console.log('droppedvalue', value);
+    console.log('source_pos: ', value);
+    console.log('source_pos: ', source_pos);
   }
+
+  const target = event.currentTarget as HTMLElement;
+  const x = Number(target.style.getPropertyValue('grid-row-start')) - 1;
+  const y = Number(target.style.getPropertyValue('grid-column-start')) - 1;
+
+  const entries = board.value.entries();
+  for (const [i, v] of entries) {
+    if (v[0][0] == source_pos[0] && v[0][1] == source_pos[1]) {
+      console.log('found it!');
+      board.value[i] = [[x + 1, y + 1], v[1]];
+      break;
+    }
+  }
+
+  //const _ = [x, y];
+  console.log(x, y);
 };
 </script>
 

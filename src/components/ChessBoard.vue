@@ -2,8 +2,6 @@
   <div class="row">
     <q-btn label="click me" @click="click_me"></q-btn>
     <q-btn label="move" @click="move"></q-btn>
-    <q-btn label="allowed" @click="allowed = !allowed" />
-    <div>{{ allowed }}</div>
   </div>
   <div class="my-grid">
     <template v-for="y in 8">
@@ -45,15 +43,15 @@ import type { Position } from 'src/logic/chess/chess';
 import type { Piece } from 'src/logic/chess/chess';
 
 const board = ref<[Position, Piece][]>([]);
-const allowed = ref<boolean>(false);
+const forbidden = ref<Position[]>([]);
 
 const get_color = (row: number, col: number): string => {
   const uneven_row = row % 2;
   const is_black = Boolean((col + uneven_row) % 2);
 
   let shade = 5;
-  if (allowed.value) {
-    shade = row == 3 && col == 2 ? 10 : 5;
+  if (forbidden.value.find((pos) => pos[0] == row && pos[1] == col)) {
+    shade = 10;
   }
 
   return is_black ? `bg-blue-${shade}` : `bg-brown-${shade}`;
@@ -80,6 +78,8 @@ const onDragStart = (event: DragEvent) => {
 
   event.dataTransfer?.setData('text/plain', boardPos);
   console.log('Dragged element ID:', draggedId);
+
+  forbidden.value = [[2, 3]];
 };
 
 const handle_drop = (event: DragEvent) => {
@@ -110,6 +110,7 @@ const handle_drop = (event: DragEvent) => {
 
   //const _ = [x, y];
   console.log(x, y);
+  forbidden.value = [];
 };
 </script>
 

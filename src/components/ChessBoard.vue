@@ -41,16 +41,17 @@ import ChessPiece from 'components/ChessPiece.vue';
 import { ref } from 'vue';
 import type { Position } from 'src/logic/chess/chess';
 import type { Piece } from 'src/logic/chess/chess';
+import { get_allowed_rook } from 'src/logic/chess/chess';
 
 const board = ref<[Position, Piece][]>([]);
-const forbidden = ref<Position[]>([]);
+const allowed = ref<Position[]>([]);
 
 const get_color = (row: number, col: number): string => {
   const uneven_row = row % 2;
   const is_black = Boolean((col + uneven_row) % 2);
 
   let shade = 5;
-  if (forbidden.value.find((pos) => pos[0] == row && pos[1] == col)) {
+  if (allowed.value.find((pos) => pos[0] == row && pos[1] == col)) {
     shade = 10;
   }
 
@@ -75,11 +76,12 @@ const onDragStart = (event: DragEvent) => {
   const target = event.currentTarget as HTMLElement;
   const draggedId = target.id;
   const boardPos = target.getAttribute('board_pos') ?? '';
+  const pos = eval('[' + boardPos + ']');
 
   event.dataTransfer?.setData('text/plain', boardPos);
   console.log('Dragged element ID:', draggedId);
 
-  forbidden.value = [[2, 3]];
+  allowed.value = get_allowed_rook(pos[0], pos[1]);
 };
 
 const handle_drop = (event: DragEvent) => {
@@ -110,7 +112,7 @@ const handle_drop = (event: DragEvent) => {
 
   //const _ = [x, y];
   console.log(x, y);
-  forbidden.value = [];
+  allowed.value = [];
 };
 </script>
 
@@ -121,15 +123,5 @@ const handle_drop = (event: DragEvent) => {
   grid-template-rows: repeat(8, 80px);
   gap: 0px;
   border: 2px solid;
-}
-
-.nomove {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5); /* Black with 50% transparency */
-  pointer-events: none; /* Allows clicks to pass through */
 }
 </style>

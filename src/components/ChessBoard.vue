@@ -2,12 +2,14 @@
   <div class="row">
     <q-btn label="click me" @click="click_me"></q-btn>
     <q-btn label="move" @click="move"></q-btn>
+    <q-btn label="allowed" @click="allowed = !allowed" />
+    <div>{{ allowed }}</div>
   </div>
   <div class="my-grid">
     <template v-for="y in 8">
       <template v-for="x in 8" :key="'cell' + x + y">
         <div
-          :class="get_color(x, y) ? 'bg-blue' : 'bg-brown'"
+          :class="get_color(x, y)"
           :style="{
             'grid-row-start': y,
             'grid-row-end': y + 1,
@@ -43,11 +45,18 @@ import type { Position } from 'src/logic/chess/chess';
 import type { Piece } from 'src/logic/chess/chess';
 
 const board = ref<[Position, Piece][]>([]);
+const allowed = ref<boolean>(false);
 
-const get_color = (row: number, col: number): boolean => {
+const get_color = (row: number, col: number): string => {
   const uneven_row = row % 2;
   const is_black = Boolean((col + uneven_row) % 2);
-  return is_black;
+
+  let shade = 5;
+  if (allowed.value) {
+    shade = row == 3 && col == 2 ? 10 : 5;
+  }
+
+  return is_black ? `bg-blue-${shade}` : `bg-brown-${shade}`;
 };
 
 const click_me = () => {
@@ -111,5 +120,15 @@ const handle_drop = (event: DragEvent) => {
   grid-template-rows: repeat(8, 80px);
   gap: 0px;
   border: 2px solid;
+}
+
+.nomove {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Black with 50% transparency */
+  pointer-events: none; /* Allows clicks to pass through */
 }
 </style>

@@ -7,7 +7,7 @@
     <template v-for="y in 8">
       <template v-for="x in 8" :key="'cell' + x + y">
         <div
-          :class="get_color(x, y)"
+          :class="get_color(x - 1, y - 1)"
           :style="{
             'grid-row-start': y,
             'grid-row-end': y + 1,
@@ -25,10 +25,10 @@
       :key="pos[0] + pos[1]"
       :piece="piece"
       :style="{
-        'grid-row-start': pos[0],
-        'grid-row-end': pos[0] + 1,
-        'grid-column-start': pos[1],
-        'grid-column-end': pos[1] + 1,
+        'grid-row-start': pos[0] + 1,
+        'grid-row-end': pos[0] + 2,
+        'grid-column-start': pos[1] + 1,
+        'grid-column-end': pos[1] + 2,
       }"
       :board_pos="pos"
       @dragstart="onDragStart"
@@ -105,7 +105,7 @@ const handle_drop = (event: DragEvent) => {
   for (const [i, v] of entries) {
     if (v[0][0] == source_pos[0] && v[0][1] == source_pos[1]) {
       console.log('found it!');
-      board.value[i] = [[x + 1, y + 1], v[1]];
+      board.value[i] = [[x, y], v[1]];
       break;
     }
   }

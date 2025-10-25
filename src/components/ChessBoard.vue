@@ -41,7 +41,7 @@ import ChessPiece from 'components/ChessPiece.vue';
 import { ref } from 'vue';
 import type { Position } from 'src/logic/chess/chess';
 import type { Piece } from 'src/logic/chess/chess';
-import { get_allowed_rook } from 'src/logic/chess/chess';
+import { get_allowed_rook, pieces } from 'src/logic/chess/chess';
 
 const board = ref<[Position, Piece][]>([]);
 const allowed = ref<Position[]>([]);
@@ -59,8 +59,10 @@ const get_color = (row: number, col: number): string => {
 };
 
 const click_me = () => {
-  const new_piece: Piece = { type: 'k', color: 'b' };
-  board.value.push([[4, 3], new_piece]);
+  const piece = pieces.bb1;
+  if (!piece) throw new Error('Unknown piece');
+
+  board.value.push([[4, 3], piece]);
 };
 
 const move = () => {

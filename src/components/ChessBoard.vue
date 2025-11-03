@@ -59,6 +59,10 @@ const get_color = (row: number, col: number): string => {
 
 const click_me = () => {
   board.value.add_piece('br1', [4, 3]);
+  board.value.add_piece('br2', [6, 3]);
+  board.value.add_piece('wr1', [1, 3]);
+  board.value.add_piece('wq', [4, 0]);
+  board.value.add_piece('wk', [4, 6]);
 };
 
 const move = () => {

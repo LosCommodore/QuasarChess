@@ -101,7 +101,7 @@ export class Board {
       }
 
       const foreign_piece = id_to_piece(foreign_id);
-      if (foreign_piece.color != self_color) allowed.push([y, x0]);
+      if (foreign_piece.color != self_color) allowed.push([y, x]);
       return false;
     };
 

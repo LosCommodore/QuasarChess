@@ -59,11 +59,24 @@ export function get_allowed_rook(y: number, x: number): Position[] {
   return pos;
 }
 
-class Board {
+export class Board {
   private board: string[][];
 
   constructor() {
     this.board = Array.from({ length: 8 }, () => Array.from({ length: 8 }, () => ''));
+  }
+
+  piece_positions(): [Position, Piece][] {
+    const ret: [Position, Piece][] = [];
+    for (const [y, row] of this.board.entries()) {
+      for (const [x, p] of row.entries()) {
+        if (p != '') {
+          const piece = id_to_piece(p);
+          ret.push([[y, x], piece]);
+        }
+      }
+    }
+    return ret;
   }
 
   add_piece(piece_id: string, pos: [number, number]) {
@@ -83,7 +96,7 @@ class Board {
       const foreign_id = this.board[y]?.[x] as string;
 
       if (foreign_id === '') {
-        allowed.push([y, x0]);
+        allowed.push([y, x]);
         return true;
       }
 
@@ -92,16 +105,16 @@ class Board {
       return false;
     };
 
-    for (let y = y0; y < 8; y++) {
+    for (let y = y0 + 1; y < 8; y++) {
       if (!process_pos(y, x0)) break;
     }
-    for (let y = y0; y > 0; y--) {
+    for (let y = y0 - 1; y >= 0; y--) {
       if (!process_pos(y, x0)) break;
     }
-    for (let x = x0; x < 8; x++) {
+    for (let x = x0 + 1; x < 8; x++) {
       if (!process_pos(y0, x)) break;
     }
-    for (let x = x0; x > 0; x--) {
+    for (let x = x0 - 1; x >= 0; x--) {
       if (!process_pos(y0, x)) break;
     }
 

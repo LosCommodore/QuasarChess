@@ -7,7 +7,7 @@
     <template v-for="y in 8">
       <template v-for="x in 8" :key="'cell' + x + y">
         <div
-          :class="get_color(x - 1, y - 1)"
+          :class="get_color(y - 1, x - 1)"
           :style="{
             'grid-row-start': y,
             'grid-row-end': y + 1,
@@ -21,7 +21,7 @@
     </template>
 
     <ChessPiece
-      v-for="[pos, piece] in board"
+      v-for="[pos, piece] in board.piece_positions()"
       :key="pos[0] + pos[1]"
       :piece="piece"
       :style="{
@@ -40,10 +40,9 @@
 import ChessPiece from 'components/ChessPiece.vue';
 import { ref } from 'vue';
 import type { Position } from 'src/logic/chess/chess';
-import type { Piece } from 'src/logic/chess/chess';
-import { get_allowed_rook, pieces } from 'src/logic/chess/chess';
+import { Board } from 'src/logic/chess/chess';
 
-const board = ref<[Position, Piece][]>([]);
+const board = ref<Board>(new Board());
 const allowed = ref<Position[]>([]);
 
 const get_color = (row: number, col: number): string => {
@@ -59,18 +58,17 @@ const get_color = (row: number, col: number): string => {
 };
 
 const click_me = () => {
-  const piece = pieces.bb1;
-  if (!piece) throw new Error('Unknown piece');
-
-  board.value.push([[4, 3], piece]);
+  board.value.add_piece('br1', [4, 3]);
 };
 
 const move = () => {
+  /*
   const pos = board.value[0];
   console.log(pos);
   if (!pos) return;
 
   pos[0] = [2, 2];
+  */
 };
 
 const onDragStart = (event: DragEvent) => {
@@ -83,7 +81,7 @@ const onDragStart = (event: DragEvent) => {
   event.dataTransfer?.setData('text/plain', boardPos);
   console.log('Dragged element ID:', draggedId);
 
-  allowed.value = get_allowed_rook(pos[0], pos[1]);
+  allowed.value = board.value.get_movement_options(pos);
 };
 
 const handle_drop = (event: DragEvent) => {
@@ -103,6 +101,7 @@ const handle_drop = (event: DragEvent) => {
   const x = Number(target.style.getPropertyValue('grid-row-start')) - 1;
   const y = Number(target.style.getPropertyValue('grid-column-start')) - 1;
 
+  /*
   const entries = board.value.entries();
   for (const [i, v] of entries) {
     if (v[0][0] == source_pos[0] && v[0][1] == source_pos[1]) {
@@ -111,7 +110,7 @@ const handle_drop = (event: DragEvent) => {
       break;
     }
   }
-
+*/
   //const _ = [x, y];
   console.log(x, y);
   allowed.value = [];

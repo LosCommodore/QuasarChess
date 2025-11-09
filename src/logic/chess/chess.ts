@@ -7,6 +7,8 @@ export interface Piece {
   id: string;
 }
 
+type DirectionFunction = (a: number, b: number) => [number, number];
+
 function id_to_piece(id: string): Piece {
   const color = id[0] as string;
   const type = id[1] as string;
@@ -78,11 +80,11 @@ export class Board {
     row[pos[1]] = piece_id;
   }
 
-  /*
-  returns [OK, STOP]
-  OK: allowed to move here
-  STOP: direction exhaused
-  */
+  /**
+   *  returns [OK, STOP]
+   *  OK: allowed to move here
+   *  STOP: direction exhaused
+   */
   private process_pos(y: number, x: number, self_color: string): [boolean, boolean] {
     if (y < 0 || y > 7 || x < 0 || x > 7) {
       return [false, true];
@@ -98,57 +100,52 @@ export class Board {
   }
 
   private get_rock_movement(y0: number, x0: number, self_color: string): [number, number][] {
-    const allowed: [number, number][] = [];
-
-    for (let y = y0 + 1; y < 8; y++) {
-      const [ok, stop] = this.process_pos(y, x0, self_color);
-      if (ok) allowed.push([y, x0]);
-      if (stop) break;
-    }
-
-    for (let y = y0 - 1; y >= 0; y--) {
-      const [ok, stop] = this.process_pos(y, x0, self_color);
-      if (ok) allowed.push([y, x0]);
-      if (stop) break;
-    }
-
-    for (let x = x0 + 1; x < 8; x++) {
-      const [ok, stop] = this.process_pos(y0, x, self_color);
-      if (ok) allowed.push([y0, x]);
-      if (stop) break;
-    }
-
-    for (let x = x0 - 1; x >= 0; x--) {
-      const [ok, stop] = this.process_pos(y0, x, self_color);
-      if (ok) allowed.push([y0, x]);
-      if (stop) break;
-    }
+    const one = (a: number, b: number): [number, number] => [++a, b];
+    const two = (a: number, b: number): [number, number] => [--a, b];
+    const three = (a: number, b: number): [number, number] => [a, ++b];
+    const four = (a: number, b: number): [number, number] => [a, --b];
+    const allowed: [number, number][] = this.get_movements(y0, x0, self_color, [
+      one,
+      two,
+      three,
+      four,
+    ]);
 
     return allowed;
   }
 
-  public get_bishop_movement(y0: number, x0: number, self_color: string): [number, number][] {
-    const one = (a: number, b: number): [number, number] => {
-      const pos: [number, number] = [++a, ++b];
-      return pos;
-    };
-    const two = (a: number, b: number): [number, number] => {
-      const pos: [number, number] = [++a, --b];
-      return pos;
-    };
-    const three = (a: number, b: number): [number, number] => {
-      const pos: [number, number] = [--a, ++b];
-      return pos;
-    };
-    const four = (a: number, b: number): [number, number] => {
-      const pos: [number, number] = [--a, --b];
-      return pos;
-    };
+  private get_bishop_movement(y0: number, x0: number, self_color: string): [number, number][] {
+    const one = (a: number, b: number): [number, number] => [++a, ++b];
+    const two = (a: number, b: number): [number, number] => [++a, --b];
+    const three = (a: number, b: number): [number, number] => [--a, ++b];
+    const four = (a: number, b: number): [number, number] => [--a, --b];
+    const allowed: [number, number][] = this.get_movements(y0, x0, self_color, [
+      one,
+      two,
+      three,
+      four,
+    ]);
 
+    return allowed;
+  }
+
+  private get_queen_movement(y0: number, x0: number, self_color: string): [number, number][] {
+    const allowed_rook = this.get_rock_movement(y0, x0, self_color);
+    const allowed_bishop = this.get_bishop_movement(y0, x0, self_color);
+
+    return [...allowed_bishop, ...allowed_rook];
+  }
+
+  private get_movements(
+    y0: number,
+    x0: number,
+    self_color: string,
+    directions: DirectionFunction[],
+  ): [number, number][] {
     let x = x0;
     let y = y0;
     const allowed: [number, number][] = [];
-    for (const direction of [one, two, three, four]) {
+    for (const direction of directions) {
       x = x0;
       y = y0;
       while (true) {
@@ -164,30 +161,27 @@ export class Board {
     return allowed;
   }
 
-  get_movement_options(pos: [number, number]): [number, number][] {
-    const [y0, x0] = pos;
+  public get_movement_options(pos: [number, number]): [number, number][] {
     const id = this.board[pos[0]]?.[pos[1]] as string;
     if (id === '') throw new Error('No piece on this position');
     const piece = id_to_piece(id);
 
-    let allowed = [];
-    switch (piece.type) {
-      case 'r':
-        {
-          allowed = this.get_rock_movement(y0, x0, piece.color);
-        }
-        break;
-      case 'b':
-        {
-          allowed = this.get_bishop_movement(y0, x0, piece.color);
-        }
-        break;
+    const mapping: Record<
+      string,
+      (y0: number, x0: number, self_color: string) => [number, number][]
+    > = {
+      r: this.get_rock_movement.bind(this),
+      b: this.get_bishop_movement.bind(this),
+      q: this.get_queen_movement.bind(this),
+    };
 
-      default: {
-        throw new Error('Panic!');
-      }
-    }
+    const fun = mapping[piece.type] as (
+      y0: number,
+      x0: number,
+      self_color: string,
+    ) => [number, number][];
 
+    const allowed = fun(...pos, piece.color);
     return allowed;
   }
 }

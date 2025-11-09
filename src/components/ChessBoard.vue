@@ -64,6 +64,9 @@ const click_me = () => {
   board.value.add_piece('wb1', [4, 0]);
   board.value.add_piece('wb2', [4, 6]);
   board.value.add_piece('bq', [2, 2]);
+  board.value.add_piece('bk', [3, 3]);
+  board.value.add_piece('bp', [5, 5]);
+  board.value.add_piece('bn1', [5, 6]);
 };
 
 const move = () => {

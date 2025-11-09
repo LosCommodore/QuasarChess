@@ -136,6 +136,13 @@ export class Board {
     return [...allowed_bishop, ...allowed_rook];
   }
 
+  /** get movements for rook, bishop, queen
+   * @param y0 starting position of piece
+   * @param x0 starting position of piece
+   * @param self_color color of piece
+   * @param directions list of direction functions
+   * @returns allowed positions
+   */
   private get_movements(
     y0: number,
     x0: number,
@@ -161,6 +168,80 @@ export class Board {
     return allowed;
   }
 
+  private get_king_movement(y0: number, x0: number, self_color: string): [number, number][] {
+    const movements: [number, number][] = [
+      [y0 + 1, x0],
+      [y0 - 1, x0],
+      [y0, x0 + 1],
+      [y0, x0 - 1],
+      [y0 + 1, x0 - 1],
+      [y0 - 1, x0 + 1],
+      [y0 - 1, x0 - 1],
+      [y0 + 1, x0 + 1],
+    ];
+    const allowed: [number, number][] = [];
+
+    for (const m of movements) {
+      const [ok, _stop] = this.process_pos(...m, self_color);
+      if (ok) {
+        allowed.push(m);
+      }
+    }
+
+    return allowed;
+  }
+
+  private get_pawn_movement(y0: number, x0: number, self_color: string): [number, number][] {
+    // TODO: implement en passant
+
+    let x = x0;
+    const direction = self_color === 'b' ? 1 : -1;
+    const y = y0 + direction;
+    const allowed: [number, number][] = [];
+
+    if (y < 0 || y > 7) {
+      return [];
+    }
+
+    let foreign_id = this.board[y]?.[x] as string;
+    if (foreign_id === '') allowed.push([y, x]);
+
+    for (x of [x0 + 1, x0 - 1]) {
+      if (x > 7 || x < 0) continue;
+      foreign_id = this.board[y]?.[x] as string;
+      if (foreign_id != '') {
+        const foreign_piece = id_to_piece(foreign_id);
+        if (foreign_piece.color != self_color) allowed.push([y, x]);
+      }
+    }
+    return allowed;
+  }
+
+  private get_knight_movement(y0: number, x0: number, self_color: string): [number, number][] {
+    const allowed: [number, number][] = [];
+    let destinations: [number, number][] = [
+      [y0 + 2, x0 + 1],
+      [y0 - 2, x0 + 1],
+      [y0 + 2, x0 - 1],
+      [y0 - 2, x0 - 1],
+      [y0 + 1, x0 + 2],
+      [y0 + 1, x0 - 2],
+      [y0 - 1, x0 + 2],
+      [y0 - 1, x0 - 2],
+    ];
+    destinations = destinations.filter(([a, b]) => a > 0 && a <= 7 && b > 0 && b <= 7);
+    for (const d of destinations) {
+      const foreign_id = this.board[d[0]]?.[d[1]] as string;
+      if (foreign_id === '') allowed.push(d);
+      else {
+        const foreign_piece = id_to_piece(foreign_id);
+        if (foreign_piece.color != self_color) allowed.push(d);
+      }
+    }
+
+    return allowed;
+  }
+
   public get_movement_options(pos: [number, number]): [number, number][] {
     const id = this.board[pos[0]]?.[pos[1]] as string;
     if (id === '') throw new Error('No piece on this position');
@@ -173,6 +254,9 @@ export class Board {
       r: this.get_rock_movement.bind(this),
       b: this.get_bishop_movement.bind(this),
       q: this.get_queen_movement.bind(this),
+      k: this.get_king_movement.bind(this),
+      p: this.get_pawn_movement.bind(this),
+      n: this.get_knight_movement.bind(this),
     };
 
     const fun = mapping[piece.type] as (

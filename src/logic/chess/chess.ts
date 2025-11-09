@@ -48,17 +48,6 @@ function create_all_pieces(): Record<string, Piece> {
 const pieces = create_all_pieces();
 export { pieces };
 
-export function get_allowed_rook(y: number, x: number): Position[] {
-  const pos = [];
-  for (let i = 0; i < 8; i++) {
-    pos.push([x, i] as Position);
-  }
-  for (let i = 0; i < 8; i++) {
-    pos.push([i, y] as Position);
-  }
-  return pos;
-}
-
 export class Board {
   private board: string[][];
 
@@ -89,33 +78,87 @@ export class Board {
     row[pos[1]] = piece_id;
   }
 
-  get_rock_movement(y0: number, x0: number, self_color: string): [number, number][] {
+  /*
+  returns [OK, STOP]
+  OK: allowed to move here
+  STOP: direction exhaused
+  */
+  private process_pos(y: number, x: number, self_color: string): [boolean, boolean] {
+    if (y < 0 || y > 7 || x < 0 || x > 7) {
+      return [false, true];
+    }
+    const foreign_id = this.board[y]?.[x] as string;
+
+    if (foreign_id === '') {
+      return [true, false];
+    }
+
+    const foreign_piece = id_to_piece(foreign_id);
+    return [foreign_piece.color != self_color, true];
+  }
+
+  private get_rock_movement(y0: number, x0: number, self_color: string): [number, number][] {
     const allowed: [number, number][] = [];
 
-    const process_pos = (y: number, x: number): boolean => {
-      const foreign_id = this.board[y]?.[x] as string;
+    for (let y = y0 + 1; y < 8; y++) {
+      const [ok, stop] = this.process_pos(y, x0, self_color);
+      if (ok) allowed.push([y, x0]);
+      if (stop) break;
+    }
 
-      if (foreign_id === '') {
-        allowed.push([y, x]);
-        return true;
-      }
+    for (let y = y0 - 1; y >= 0; y--) {
+      const [ok, stop] = this.process_pos(y, x0, self_color);
+      if (ok) allowed.push([y, x0]);
+      if (stop) break;
+    }
 
-      const foreign_piece = id_to_piece(foreign_id);
-      if (foreign_piece.color != self_color) allowed.push([y, x]);
-      return false;
+    for (let x = x0 + 1; x < 8; x++) {
+      const [ok, stop] = this.process_pos(y0, x, self_color);
+      if (ok) allowed.push([y0, x]);
+      if (stop) break;
+    }
+
+    for (let x = x0 - 1; x >= 0; x--) {
+      const [ok, stop] = this.process_pos(y0, x, self_color);
+      if (ok) allowed.push([y0, x]);
+      if (stop) break;
+    }
+
+    return allowed;
+  }
+
+  public get_bishop_movement(y0: number, x0: number, self_color: string): [number, number][] {
+    const one = (a: number, b: number): [number, number] => {
+      const pos: [number, number] = [++a, ++b];
+      return pos;
+    };
+    const two = (a: number, b: number): [number, number] => {
+      const pos: [number, number] = [++a, --b];
+      return pos;
+    };
+    const three = (a: number, b: number): [number, number] => {
+      const pos: [number, number] = [--a, ++b];
+      return pos;
+    };
+    const four = (a: number, b: number): [number, number] => {
+      const pos: [number, number] = [--a, --b];
+      return pos;
     };
 
-    for (let y = y0 + 1; y < 8; y++) {
-      if (!process_pos(y, x0)) break;
-    }
-    for (let y = y0 - 1; y >= 0; y--) {
-      if (!process_pos(y, x0)) break;
-    }
-    for (let x = x0 + 1; x < 8; x++) {
-      if (!process_pos(y0, x)) break;
-    }
-    for (let x = x0 - 1; x >= 0; x--) {
-      if (!process_pos(y0, x)) break;
+    let x = x0;
+    let y = y0;
+    const allowed: [number, number][] = [];
+    for (const direction of [one, two, three, four]) {
+      x = x0;
+      y = y0;
+      while (true) {
+        [x, y] = direction(x, y);
+        const [ok, stop] = this.process_pos(y, x, self_color);
+        if (ok) allowed.push([y, x]);
+        if (stop) {
+          break;
+        }
+      }
     }
 
     return allowed;
@@ -134,6 +177,12 @@ export class Board {
           allowed = this.get_rock_movement(y0, x0, piece.color);
         }
         break;
+      case 'b':
+        {
+          allowed = this.get_bishop_movement(y0, x0, piece.color);
+        }
+        break;
+
       default: {
         throw new Error('Panic!');
       }

@@ -101,26 +101,17 @@ const handle_drop = (event: DragEvent) => {
 
   const source_pos = eval('[' + value + ']');
   if (value) {
-    console.log('source_pos: ', value);
     console.log('source_pos: ', source_pos);
   }
 
   const target = event.currentTarget as HTMLElement;
   const x = Number(target.style.getPropertyValue('grid-row-start')) - 1;
   const y = Number(target.style.getPropertyValue('grid-column-start')) - 1;
+  const dest_pos: [number, number] = [x, y];
 
-  /*
-  const entries = board.value.entries();
-  for (const [i, v] of entries) {
-    if (v[0][0] == source_pos[0] && v[0][1] == source_pos[1]) {
-      console.log('found it!');
-      board.value[i] = [[x, y], v[1]];
-      break;
-    }
+  if (allowed.value.some(([y, x]) => dest_pos[0] === y && dest_pos[1] === x)) {
+    board.value.move_piece(source_pos, dest_pos);
   }
-*/
-  //const _ = [x, y];
-  console.log(x, y);
   allowed.value = [];
 };
 </script>

@@ -1,5 +1,5 @@
 <template>
-  <q-img :src="figure_svg" style="width: 80px; height: 80px; z-index: 1" draggable />
+  <img :src="figure_svg" style="width: 80px; height: 80px; z-index: 1" draggable />
 </template>
 
 <script setup lang="ts">
@@ -11,7 +11,7 @@ const props = defineProps<{
 
 const figure_svg = computed(() => {
   const map = props.piece.color == 'b' ? figure_mapping_black : figure_mapping_white;
-  return map[props.piece.type];
+  return map[props.piece.type] as string;
 });
 
 const figure_mapping_black: Record<string, string> = {

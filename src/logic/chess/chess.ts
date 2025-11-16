@@ -51,12 +51,15 @@ const pieces = create_all_pieces();
 export { pieces };
 
 export class Board {
-  private board: string[][];
+  private board: string[][]; // 2D array of pieces with piece_ids
 
   constructor() {
     this.board = Array.from({ length: 8 }, () => Array.from({ length: 8 }, () => ''));
   }
 
+  /**
+   * @returns  Array of Postion-Piece tuples
+   */
   piece_positions(): [Position, Piece][] {
     const ret: [Position, Piece][] = [];
     for (const [y, row] of this.board.entries()) {
@@ -70,7 +73,10 @@ export class Board {
     return ret;
   }
 
-  add_piece(piece_id: string, pos: [number, number]) {
+  /***
+   * Add a piece to board
+   */
+  add_piece(piece_id: string, pos: Position) {
     for (const v of pos) if (v < 0 || v > 7) throw new Error('Position outside board');
 
     const current = this.board[pos[0]]?.[pos[1]] as string;
@@ -78,6 +84,18 @@ export class Board {
 
     const row = this.board[pos[0]] as string[];
     row[pos[1]] = piece_id;
+  }
+
+  move_piece(old_pos: Position, new_pos: Position) {
+    for (const v of old_pos) if (v < 0 || v > 7) throw new Error('Position outside board');
+    for (const v of new_pos) if (v < 0 || v > 7) throw new Error('Position outside board');
+
+    const piece_id = this.board[old_pos[0]]?.[old_pos[1]] as string;
+    if (piece_id === '') throw new Error('No piece on "old pos" to move');
+
+    this.board[old_pos[0]]![old_pos[1]] = '';
+    const row = this.board[new_pos[0]] as string[];
+    row[new_pos[1]] = piece_id;
   }
 
   /**
